@@ -51,19 +51,17 @@ printf "Going to format ${green}${root_drive}${end}\n"
 printf "Press ${green}ENTER${end} to continue\n"
 read cont
 
-# TODO: Uncomment this
-
 # Create a GPT Partition table
-#parted -s /dev/<device_name> mklabel gpt
+parted -s ${root_drive} mklabel gpt
 
 # Create the boot partition
-#parted -s /dev/<device_name> mkpart primary fat32 1MiB 2048MiB
+parted -s ${root_drive} mkpart primary fat32 1MiB 2048MiB
 
 # Create the OS partition
-#parted -s /dev/<device_name> mkpart primary 2048MiB 100%
+parted -s ${root_drive} mkpart primary 2048MiB 100%
 
 # Set the boot flags for the boot partition
-#parted -s /dev/<device_name> set 1 esp on
+parted -s ${root_drive} set 1 esp on
 
 
 # Get all partitions
