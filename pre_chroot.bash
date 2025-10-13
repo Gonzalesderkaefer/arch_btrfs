@@ -88,10 +88,10 @@ cryptsetup luksFormat ${luks_part}
 
 # Open encrypted partition
 luks_name="root"
-cryptsetup open ${lukspart} ${luks_name}
+cryptsetup open ${luks_part} ${luks_name}
 
 # Create filesystems
-mkfs.fat -F32 ${efipart}
+mkfs.fat -F32 ${efi_part}
 mkfs.btrfs /dev/mapper/${luks_name}
 
 # Create temp mount directory and mount
@@ -102,6 +102,9 @@ cd /target
 # Create root subvolume
 btrfs subvolume create @
 
+# Create home subvolume
+#btrfs subvolume create @home # Uncomment for home subvolume
+
 # Create swap subvolume
 btrfs subvolume create @swap
 btrfs filesystem mkswapfile --size 4g --uuid clear @swap/swapfile; # Might switch to zram
@@ -109,9 +112,31 @@ cd ${CURRENTDIR}
 
 # Remounting subvolumes
 umount /target;
-mount -o noatime,compress=zstd,discard=async,space_cache=v2,subvol=@ /dev/mapper/${luks_name} /mnt;
+mount -o noatime,compress=zstd,discard=async,space_cache=v2,subvol=@ /dev/mapper/${luks_name} /mnt
+#mount -o noatime,compress=zstd,discard=async,space_cache=v2,subvol=@home /dev/mapper/${luks_name} /mnt # Uncomment for home subvolume
 mount --mkdir -o noatime,compress=zstd,discard=async,space_cache=v2,subvol=@swap /dev/mapper/${luks_name} /mnt/swap;
 swapon /mnt/swap/swapfile;
 
 # Mount boot partition
-mount --mkdir ${efipart} /mnt/boot
+mount --mkdir ${efi_part} /mnt/boot
+
+# installing the base system
+pacstrap -K /mnt base linux linux-firmware linux-headers networkmanager cryptsetup btrfs-progs grub grub-btrfs efibootmgr vim sudo base-devel;
+
+# generate fstab and write it to rootdrive
+genfstab -U /mnt >> /mnt/etc/fstab;
+
+# copy chroot setup to target system
+cp ./post_chroot.bash /mnt/
+
+# Store uuid of root part
+rootuuid=$(sudo blkid -s UUID -o value ${luks_part})
+
+# chrooting into the new system
+arch-chroot /mnt ./post_chroot.bash ${rootuuid} ${luks_name}
+
+# remove chroot script
+rm /mnt/post_chroot.bash
+
+# user specific configuration
+arch-chroot /mnt;
