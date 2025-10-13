@@ -16,22 +16,26 @@ fi
 # setting the time and timezone
 region="NULL"
 city="NULL"
+# Check input
 until [[ -e "/usr/share/zoneinfo/${region}/${city}" ]]; do
 
-
+    # Get Region
     echo -ne "${green}Please enter the region:${end} ";
     read region;
 
+    # Get City
     echo -ne "${green}Please enter the city:${end} ";
     read city;
 
+    # Validate
     if ! [[ -e "/usr/share/zoneinfo/${region}/${city}" ]]; then
         echo "${red}Invalid region or city use '_' instead of spaces${end}"
     fi
-
-    ln -sf /usr/share/zoneinfo/${region}/${city} /etc/localtime;
-    hwclock --systohc;
 done
+
+# Finally set region and city
+ln -sf /usr/share/zoneinfo/${region}/${city} /etc/localtime;
+hwclock --systohc;
 
 # 'uncomment' en_US.UTF-8 UTF-8 from /etc/locale.gen
 echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen;
