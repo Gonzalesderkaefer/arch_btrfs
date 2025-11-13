@@ -85,7 +85,7 @@ echo -e "${green}Encrypting ${luks_part}...${end}"
 cryptsetup luksFormat ${luks_part}
 
 # Open encrypted partition
-luks_name="root"
+luks_name="main_crypt"
 cryptsetup open ${luks_part} ${luks_name}
 
 # Create filesystems

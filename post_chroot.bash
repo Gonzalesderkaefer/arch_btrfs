@@ -33,6 +33,9 @@ until [[ -e "/usr/share/zoneinfo/${region}/${city}" ]]; do
     fi
 done
 
+# vconsole.conf
+echo "KEYMAP=us" >> /etc/vconsole.conf
+
 # Finally set region and city
 ln -sf /usr/share/zoneinfo/${region}/${city} /etc/localtime;
 hwclock --systohc;
