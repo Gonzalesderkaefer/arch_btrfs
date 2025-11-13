@@ -119,6 +119,9 @@ swapon /mnt/swap/swapfile;
 # Mount boot partition
 mount --mkdir ${efi_part} /mnt/boot
 
+# This file is needed so that the mkinitcio command works
+mkdir /mnt/etc/ && touch /mnt/etc/vconsole.conf
+
 # installing the base system
 pacstrap -K /mnt base linux linux-firmware linux-headers networkmanager cryptsetup btrfs-progs grub grub-btrfs efibootmgr vim sudo base-devel;
 
