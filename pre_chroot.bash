@@ -104,8 +104,9 @@ btrfs subvolume create @
 #btrfs subvolume create @home # Uncomment for home subvolume
 
 # Create swap subvolume
+filesz=$(free -h | grep 'Mem' | awk '{print $2}' | tr -d "A-Za-z")
 btrfs subvolume create @swap
-btrfs filesystem mkswapfile --size 4g --uuid clear @swap/swapfile; # Might switch to zram
+btrfs filesystem mkswapfile --size ${filesz}g --uuid clear @swap/swapfile; # Might switch to zram
 cd ${CURRENTDIR}
 
 # Remounting subvolumes
