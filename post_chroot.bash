@@ -33,9 +33,6 @@ until [[ -e "/usr/share/zoneinfo/${region}/${city}" ]]; do
     fi
 done
 
-# vconsole.conf
-echo "KEYMAP=us" >> /etc/vconsole.conf
-
 # Finally set region and city
 ln -sf /usr/share/zoneinfo/${region}/${city} /etc/localtime;
 hwclock --systohc;
@@ -52,7 +49,7 @@ echo "${hostname}" >> /etc/hostname;
 
 # mkinitcpio config
 sed -i 's/\(^MODULES=(\)/\1btrfs/g' /etc/mkinitcpio.conf
-sed -i 's/\(HOOKS=(.*block\)/\1 encrypt/g' /etc/mkinitcpio.conf
+sed -i 's/\(HOOKS=(.*block\)/\1 sd-encrypt/g' /etc/mkinitcpio.conf
 mkinitcpio -P;
 
 # user creation
@@ -70,7 +67,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 # Build kernel-parameter string
 rootuuid=$1;
 luks_name=$2;
-kernel_param="cryptdevice=UUID=${rootuuid}:${luks_name} root=/dev/mapper/${luks_name}";
+kernel_param="rd.luks.name=${rootuuid}=${luks_name} root=/dev/mapper/${luks_name}";
 
 # Add kernel-parameter
 sed -i "s|\(GRUB_CMDLINE_LINUX_DEFAULT=.*\)\"|\1 ${kernel_param}\"|g" /etc/default/grub
